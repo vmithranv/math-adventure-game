@@ -1,11 +1,17 @@
-const CACHE_NAME = 'math-adventure-cache-v2';
+const CACHE_NAME = 'nichus-maths-cache-v3';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((k) => caches.delete(k))
+      );
+    }).then(() => clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (e) => {
