@@ -1,13 +1,13 @@
 {
-  "name": "Math Adventure Quest - Class 6",
-  "short_name": "Math Quest",
-  "description": "Gamified Mathematics learning app for Grade 6 students",
+  "name": "Nichus Maths Game",
+  "short_name": "Nichus Maths",
+  "description": "Fun, colourful and encouraging maths learning game for Class 6",
   "start_url": "/math-adventure-game/",
   "scope": "/math-adventure-game/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#020617",
-  "theme_color": "#020617",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/math-adventure-game/icon-192.png",
