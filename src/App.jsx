@@ -32,9 +32,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-100/90 text-slate-800 flex justify-center selection:bg-indigo-500 selection:text-white font-sans antialiased">
       {/* Mobile-first viewport container (max-w-md matches mobile proportions 375x812 - 428px) */}
-      <div className="w-full max-w-md bg-slate-900 min-h-screen border-x border-slate-800 flex flex-col relative shadow-2xl pb-10">
+      <div className="w-full max-w-md bg-white min-h-screen border-x border-slate-200/80 flex flex-col relative shadow-xl pb-10">
         
         {/* Sticky Header */}
         <TopHeader
@@ -44,7 +44,7 @@ export function App() {
         />
 
         {/* Main Adventure Progression Map */}
-        <main className="flex-1">
+        <main className="flex-1 bg-slate-50/60">
           <AdventureMap
             gameState={gameState}
             onSelectStage={handleSelectStage}
