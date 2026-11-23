@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Heart, 
   Lightbulb, 
-  Flame, 
   X, 
   CheckCircle2, 
   XCircle, 
   ChevronRight, 
   HelpCircle,
-  Trophy
+  Sparkles
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const StagePlayEngine = ({ 
-  world, 
+  level, 
   stage, 
   onClose, 
   onCompleteStage, 
-  onAddReward 
+  onAddReward,
+  onLevelFullyCompleted
 }) => {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [hearts, setHearts] = useState(3);
-  const [streak, setStreak] = useState(0);
   const [score, setScore] = useState(0);
-  const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
   
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
@@ -35,19 +32,17 @@ export const StagePlayEngine = ({
   const [showSolutionModal, setShowSolutionModal] = useState(false);
   
   // End of stage summary
-  const [isGameOver, setIsGameOver] = useState(false);
   const [isStageWon, setIsStageWon] = useState(false);
-  const [startTime] = useState(Date.now());
 
-  // Generate 15 questions upon stage load
+  // Generate 10 bite-sized questions for self-paced learning
   useEffect(() => {
-    const qCount = 15;
+    const qCount = 10;
     const generated = [];
     for (let i = 0; i < qCount; i++) {
-      generated.push(world.generator(stage.id));
+      generated.push(level.generator(stage.id));
     }
     setQuestions(generated);
-  }, [world, stage]);
+  }, [level, stage]);
 
   const currentQ = questions[currentIndex];
 
@@ -64,32 +59,17 @@ export const StagePlayEngine = ({
     setIsCorrect(correct);
 
     if (correct) {
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      const points = 10 + Math.min(newStreak, 5) * 2;
-      setScore(prev => prev + points);
-      setCorrectAnswersCount(prev => prev + 1);
+      setScore(prev => prev + 10);
+      setCorrectCount(prev => prev + 1);
 
-      // Mini confetti on streak multiple of 3
-      if (newStreak % 3 === 0) {
-        confetti({
-          particleCount: 30,
-          spread: 50,
-          origin: { y: 0.7 }
-        });
-      }
+      confetti({
+        particleCount: 25,
+        spread: 45,
+        origin: { y: 0.7 }
+      });
     } else {
-      setStreak(0);
-      const remainingHearts = hearts - 1;
-      setHearts(remainingHearts);
-      
-      // Auto-trigger Step-by-Step Solution modal to maximize self-learning!
+      // Gentle encouragement: auto-show friendly step-by-step solution
       setShowSolutionModal(true);
-
-      if (remainingHearts <= 0) {
-        // Run out of hearts
-        setIsGameOver(true);
-      }
     }
   };
 
@@ -108,93 +88,52 @@ export const StagePlayEngine = ({
 
   const handleStageVictory = () => {
     setIsStageWon(true);
-    const timeSpentSeconds = Math.round((Date.now() - startTime) / 1000);
     
-    let calculatedStars = 1;
-    if (hearts === 3) calculatedStars = 3;
-    else if (hearts === 2) calculatedStars = 2;
+    // Encouraging star rating (at least 2 stars for completing, 3 for 80%+ accuracy)
+    let stars = 2;
+    if (correctCount >= 8) stars = 3;
 
-    const earnedCoins = calculatedStars * 15 + (stage.isBoss ? 25 : 10);
-    const earnedXP = score + calculatedStars * 20;
+    onAddReward(stars * 10, score + 20);
+    onCompleteStage(level.id, stage.id, stars, score);
 
-    onAddReward(earnedCoins, earnedXP);
-    onCompleteStage(
-      world.id, 
-      stage.id, 
-      calculatedStars, 
-      score, 
-      correctAnswersCount + (isCorrect ? 1 : 0), 
-      questions.length, 
-      timeSpentSeconds
-    );
-
-    // Big victory confetti!
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 }
     });
+
+    // If this was Stage 4 (final stage of Level), check for gift unlock!
+    if (stage.id === 4 && onLevelFullyCompleted) {
+      onLevelFullyCompleted(level);
+    }
   };
 
-  if (!currentQ && !isGameOver && !isStageWon) {
+  if (!currentQ && !isStageWon) {
     return (
       <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-4">
         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-sm font-bold text-slate-600">Summoning Math Questions...</p>
-      </div>
-    );
-  }
-
-  // GAME OVER MODAL (0 Hearts)
-  if (isGameOver && !isStageWon) {
-    return (
-      <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-slate-800 animate-fade-in">
-        <div className="max-w-sm w-full bg-white border border-rose-100 rounded-3xl p-6 text-center shadow-2xl space-y-4">
-          <div className="text-5xl animate-bounce">💔</div>
-          <h2 className="text-xl font-black text-rose-600">All Hearts Lost!</h2>
-          <p className="text-xs text-slate-600">
-            Don't worry! Math heroes learn from every try. Review your concepts and take on the stage again!
-          </p>
-
-          <div className="py-2.5 bg-slate-50 border border-slate-100 rounded-2xl flex justify-around text-xs">
-            <div>
-              <span className="text-slate-500 block font-semibold">Solved</span>
-              <span className="text-sm font-bold text-slate-800">{correctAnswersCount}/{questions.length}</span>
-            </div>
-            <div>
-              <span className="text-slate-500 block font-semibold">XP Earned</span>
-              <span className="text-sm font-bold text-amber-600">+{score} XP</span>
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold rounded-2xl shadow-md transition active:scale-95 text-sm"
-          >
-            Return to World Map
-          </button>
-        </div>
+        <p className="mt-4 text-sm font-bold text-slate-600">Summoning Fun Questions...</p>
       </div>
     );
   }
 
   // STAGE VICTORY MODAL
   if (isStageWon) {
-    const calculatedStars = hearts === 3 ? 3 : hearts === 2 ? 2 : 1;
+    const stars = correctCount >= 8 ? 3 : 2;
 
     return (
       <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-slate-800 animate-fade-in">
-        <div className="max-w-sm w-full bg-white border border-amber-200 rounded-3xl p-6 text-center shadow-2xl space-y-5">
+        <div className="max-w-sm w-full bg-white border border-amber-200 rounded-3xl p-6 text-center shadow-2xl space-y-4">
           <div className="text-5xl animate-bounce">
-            {stage.isBoss ? '👑' : '🎉'}
+            🎉
           </div>
 
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full inline-block">
-              {stage.isBoss ? 'Boss Defeated!' : 'Stage Complete!'}
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full inline-block">
+              Stage Completed! 🌟
             </span>
             <h2 className="text-xl font-black text-slate-900 mt-2">{stage.title}</h2>
-            <p className="text-xs text-slate-500 font-medium">{world.name}</p>
+            <p className="text-xs text-slate-500 font-medium">{level.name}</p>
           </div>
 
           {/* 3 Stars Animation */}
@@ -203,7 +142,7 @@ export const StagePlayEngine = ({
               <span 
                 key={star} 
                 className={`text-4xl transition-all transform ${
-                  star <= calculatedStars ? 'scale-110 drop-shadow-md' : 'opacity-25 grayscale'
+                  star <= stars ? 'scale-110 drop-shadow-md' : 'opacity-25 grayscale'
                 }`}
               >
                 ⭐
@@ -211,22 +150,15 @@ export const StagePlayEngine = ({
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs">
-            <div>
-              <span className="text-slate-500 block font-semibold">Coins Won</span>
-              <span className="text-sm font-black text-amber-600">+{calculatedStars * 15 + (stage.isBoss ? 25 : 10)} 🪙</span>
-            </div>
-            <div>
-              <span className="text-slate-500 block font-semibold">Stage XP</span>
-              <span className="text-sm font-black text-indigo-600">+{score + calculatedStars * 20} XP</span>
-            </div>
-          </div>
+          <p className="text-xs text-emerald-700 font-bold bg-emerald-50 py-1.5 px-3 rounded-xl border border-emerald-200">
+            Great job! You solved {correctCount} out of 10 correctly!
+          </p>
 
           <button
             onClick={onClose}
-            className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-extrabold rounded-2xl shadow-md transition active:scale-95 text-sm"
+            className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black rounded-2xl shadow-md transition active:scale-95 text-sm"
           >
-            Claim Rewards & Continue
+            Claim Stars & Continue
           </button>
         </div>
       </div>
@@ -234,7 +166,7 @@ export const StagePlayEngine = ({
   }
 
   return (
-    <div className="fixed inset-0 z-40 bg-slate-50 flex flex-col justify-between overflow-hidden text-slate-800">
+    <div className="fixed inset-0 z-50 bg-slate-50 flex flex-col justify-between overflow-hidden text-slate-800">
       {/* Top Navigation & Status Bar */}
       <div className="p-3 bg-white border-b border-slate-200/80 flex items-center justify-between shadow-xs">
         <button 
@@ -244,10 +176,10 @@ export const StagePlayEngine = ({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Progress Bar */}
+        {/* Progress Bar (No stressful countdown timer!) */}
         <div className="flex-1 mx-3 max-w-xs">
           <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1">
-            <span>Q{currentIndex + 1} of {questions.length}</span>
+            <span>Question {currentIndex + 1} of {questions.length}</span>
             <span className="text-indigo-600 font-extrabold">{score} pts</span>
           </div>
           <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
@@ -258,48 +190,24 @@ export const StagePlayEngine = ({
           </div>
         </div>
 
-        {/* Streak & Hearts */}
-        <div className="flex items-center gap-2">
-          {streak > 1 && (
-            <div className="flex items-center gap-0.5 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full text-xs font-black text-amber-600 animate-pulse">
-              <Flame className="w-3.5 h-3.5 fill-current" />
-              <span>{streak}x</span>
-            </div>
-          )}
-
-          <div className="flex items-center gap-0.5">
-            {[1, 2, 3].map((h) => (
-              <Heart 
-                key={h}
-                className={`w-4 h-4 transition ${
-                  h <= hearts 
-                    ? 'text-rose-500 fill-rose-500 drop-shadow-xs' 
-                    : 'text-slate-300'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        <button
+          onClick={() => setShowHintModal(true)}
+          className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1.5 rounded-full transition active:scale-95 shadow-xs"
+        >
+          <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
+          <span>Need a Hint?</span>
+        </button>
       </div>
 
       {/* Main Question Card Area */}
       <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-center max-w-md mx-auto w-full">
-        {/* World and Stage tag */}
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2.5 py-0.5 rounded-full">
-            {world.name} • Stage {stage.id}
+        <div className="mb-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2.5 py-0.5 rounded-full">
+            {level.name} • Stage {stage.id}
           </span>
-
-          <button
-            onClick={() => setShowHintModal(true)}
-            className="flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-full transition active:scale-95"
-          >
-            <Lightbulb className="w-3.5 h-3.5" />
-            <span>Show Hint</span>
-          </button>
         </div>
 
-        {/* Question Prompt matching vibrant light banner style */}
+        {/* Question Prompt */}
         <div className="bg-gradient-to-r from-teal-500 via-cyan-600 to-blue-600 text-white rounded-3xl p-5 shadow-md shadow-cyan-600/10 mb-4">
           <h2 className="text-base font-extrabold leading-snug whitespace-pre-line drop-shadow-xs">
             {currentQ.question}
@@ -370,14 +278,14 @@ export const StagePlayEngine = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className={`text-xs font-black ${isCorrect ? 'text-emerald-700' : 'text-rose-600'}`}>
-                  {isCorrect ? '✨ Excellent! That is correct!' : '❌ Not quite right!'}
+                  {isCorrect ? '✨ Wonderful! That is correct!' : 'Don\'t worry! Here is how to solve it:'}
                 </span>
                 {!isCorrect && (
                   <button
                     onClick={() => setShowSolutionModal(true)}
                     className="text-xs font-bold text-amber-700 underline"
                   >
-                    View Explanation
+                    View Steps
                   </button>
                 )}
               </div>
@@ -394,14 +302,14 @@ export const StagePlayEngine = ({
         </div>
       </div>
 
-      {/* STEP-BY-STEP SOLUTION MODAL */}
+      {/* FRIENDLY STEP-BY-STEP SOLUTION MODAL */}
       {showSolutionModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white border border-slate-200 max-w-sm w-full rounded-3xl p-5 shadow-2xl flex flex-col space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <div className="flex items-center gap-2 text-indigo-600">
                 <HelpCircle className="w-5 h-5" />
-                <h3 className="text-sm font-bold text-slate-900">Step-by-Step Solution</h3>
+                <h3 className="text-sm font-bold text-slate-900">How to solve this easily</h3>
               </div>
               <button 
                 onClick={() => setShowSolutionModal(false)}
@@ -437,7 +345,7 @@ export const StagePlayEngine = ({
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <div className="flex items-center gap-2 text-amber-600">
                 <Lightbulb className="w-5 h-5" />
-                <h3 className="text-sm font-bold text-slate-900">Helpful Concept Hint</h3>
+                <h3 className="text-sm font-bold text-slate-900">Helpful Math Tip</h3>
               </div>
               <button 
                 onClick={() => setShowHintModal(false)}
