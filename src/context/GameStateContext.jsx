@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 const STORAGE_KEY = 'math_adventure_class6_save_v2';
 
 const defaultState = {
-  playerName: 'Math Star',
+  playerName: 'Nichu',
   avatar: 'math_wizard',
   unlockedAvatars: ['math_wizard'],
   coins: 50,

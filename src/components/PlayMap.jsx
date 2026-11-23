@@ -14,7 +14,7 @@ export const PlayMap = ({ gameState, onSelectStage, isStageUnlocked }) => {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-white drop-shadow-xs">
-              Math Adventure Map
+              Nichus Maths Game
             </h1>
             <p className="text-xs text-white/90 mt-1 max-w-xs font-medium leading-relaxed">
               Explore 6 cheerful levels at your own pace. Solve math puzzles and open mystery gifts!
