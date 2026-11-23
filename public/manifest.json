@@ -2,16 +2,23 @@
   "name": "Math Adventure Quest - Class 6",
   "short_name": "Math Quest",
   "description": "Gamified Mathematics learning app for Grade 6 students",
-  "start_url": "/",
+  "start_url": "/math-adventure-game/",
+  "scope": "/math-adventure-game/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#020617",
   "theme_color": "#020617",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "/math-adventure-game/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/math-adventure-game/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
