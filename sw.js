@@ -1,4 +1,4 @@
-const CACHE_NAME = 'math-adventure-cache-v1';
+const CACHE_NAME = 'math-adventure-cache-v2';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -9,5 +9,7 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Let browser fetch normally
+  e.respondWith(
+    fetch(e.request).catch(() => caches.match(e.request))
+  );
 });
