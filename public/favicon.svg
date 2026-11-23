@@ -1,10 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4f46e5"/>
-      <stop offset="100%" stop-color="#9333ea"/>
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
     </linearGradient>
+    <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
   </defs>
+
+  <!-- App Icon Background -->
   <rect width="512" height="512" rx="128" fill="url(#bg)"/>
-  <text x="256" y="320" font-size="240" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="900" fill="#fbbf24">📐</text>
+
+  <!-- Soft inner glow ring -->
+  <circle cx="256" cy="220" r="160" fill="#ffffff" fill-opacity="0.12"/>
+
+  <!-- Math & Abacus Elements -->
+  <!-- Cute Abacus Frame Graphic -->
+  <rect x="136" y="90" width="240" height="180" rx="24" fill="#ffffff" fill-opacity="0.2" stroke="#ffffff" stroke-width="6"/>
+  <!-- Abacus Rods -->
+  <line x1="184" y1="90" x2="184" y2="270" stroke="#fef08a" stroke-width="4"/>
+  <line x1="256" y1="90" x2="256" y2="270" stroke="#fef08a" stroke-width="4"/>
+  <line x1="328" y1="90" x2="328" y2="270" stroke="#fef08a" stroke-width="4"/>
+  <!-- Beam -->
+  <line x1="136" y1="140" x2="376" y2="140" stroke="#ffffff" stroke-width="8"/>
+  <!-- Beads -->
+  <rect x="170" y="105" width="28" height="20" rx="8" fill="#f43f5e"/>
+  <rect x="242" y="145" width="28" height="20" rx="8" fill="#06b6d4"/>
+  <rect x="314" y="105" width="28" height="20" rx="8" fill="#f43f5e"/>
+  <rect x="170" y="210" width="28" height="20" rx="8" fill="#3b82f6"/>
+  <rect x="242" y="235" width="28" height="20" rx="8" fill="#3b82f6"/>
+  <rect x="314" y="185" width="28" height="20" rx="8" fill="#3b82f6"/>
+
+  <!-- Golden Sparkling Star overlay -->
+  <path d="M 380 90 Q 395 105 410 105 Q 395 105 380 120 Q 380 105 365 105 Q 380 105 380 90 Z" fill="url(#starGrad)" filter="url(#shadow)"/>
+  <path d="M 120 180 Q 130 190 140 190 Q 130 190 120 200 Q 120 190 110 190 Q 120 190 120 180 Z" fill="url(#starGrad)"/>
+
+  <!-- Cute Nichu Badge -->
+  <g filter="url(#shadow)">
+    <rect x="86" y="320" width="340" height="96" rx="32" fill="#ffffff"/>
+    <text x="256" y="380" font-size="44" font-weight="900" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#4f46e5" letter-spacing="1">NICHU'S</text>
+    <text x="256" y="440" font-size="22" font-weight="800" font-family="system-ui, -apple-system, sans-serif" text-anchor="middle" fill="#f59e0b" letter-spacing="3">★ MATHS GAME ★</text>
+  </g>
 </svg>
